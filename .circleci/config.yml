@@ -93,7 +93,8 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+        version: 19.03.13
       - run:
           name: "Install Heroku CLI, if necessary"
           command: |
@@ -133,7 +134,8 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+        version: 19.03.13
       - run:
           name: "Install Heroku CLI, if necessary"
           command: |
@@ -173,8 +175,11 @@ workflows:
           filters:
             branches:
               ignore: develop
+
+  deploy:
+    jobs:
       - deploy-staging:
-          # masterブランチへのpushでのみ反応
+          # stagingブランチへのpushでのみ反応
           requires:
             - test_backend
           filters:
@@ -182,7 +187,7 @@ workflows:
               only:
                 - staging
       - deploy-prod:
-          # masterブランチへのpushでのみ反応
+          # prodブランチへのpushでのみ反応
           requires:
             - test_backend
           filters:
