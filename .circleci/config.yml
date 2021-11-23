@@ -123,6 +123,8 @@ jobs:
       - run:
           name: webpacker compile
           command: |
+            yarn install
+            RAILS_ENV=production bundle exec rails webpacker:compile
             heroku run rails assets:precompile --app ${HEROKU_APP_NAME_STAGING}
       - run:
           name: release Docker image to Heroku
@@ -170,6 +172,8 @@ jobs:
       - run:
           name: webpacker compile
           command: |
+            yarn install
+            RAILS_ENV=production bundle exec rails webpacker:compile
             heroku run rails assets:precompile --app ${HEROKU_APP_NAME_PROD}
       - run:
           name: release Docker image to Heroku
