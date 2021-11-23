@@ -176,7 +176,7 @@ workflows:
             branches:
               ignore: develop
 
-  deploy:
+  deploy-staging:
     jobs:
       - deploy-staging:
           # stagingブランチへのpushでのみ反応
@@ -186,6 +186,8 @@ workflows:
             branches:
               only:
                 - staging
+  deploy-prod:
+    jobs:
       - deploy-prod:
           # prodブランチへのpushでのみ反応
           requires:
