@@ -107,7 +107,10 @@ jobs:
       - run:
           name: Deploy to Heroku_Production
           command: |
-            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_STAGING.git main
+              heroku container:push web --app ${HEROKU_APP_NAME_STAGING}
+              heroku run rails assets:precompile --app ${HEROKU_APP_NAME_STAGING}
+              heroku container:release web --app ${HEROKU_APP_NAME_STAGING}
+#            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_STAGING.git main
       - run:
           name: export rails master key
           command: |
@@ -142,7 +145,10 @@ jobs:
       - run:
           name: Deploy to Heroku_Production
           command: |
-            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_PROD.git main
+              heroku container:push web --app ${HEROKU_APP_NAME_PROD}
+              heroku run rails assets:precompile --app ${HEROKU_APP_NAME_PROD}
+              heroku container:release web --app ${HEROKU_APP_NAME_PROD}
+#            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_PROD.git main
       - run:
           name: export rails master key
           command: |
