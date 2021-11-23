@@ -180,8 +180,8 @@ workflows:
     jobs:
       - deploy-staging:
           # stagingブランチへのpushでのみ反応
-          requires:
-            - test_backend
+#          requires:
+#            - test_backend
           filters:
             branches:
               only:
@@ -190,8 +190,8 @@ workflows:
     jobs:
       - deploy-prod:
           # prodブランチへのpushでのみ反応
-          requires:
-            - test_backend
+#          requires:
+#            - test_backend
           filters:
             branches:
               only:
