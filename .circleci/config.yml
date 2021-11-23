@@ -107,10 +107,10 @@ jobs:
       - run:
           name: Deploy to Heroku_Production
           command: |
-              heroku container:push web --app ${HEROKU_APP_NAME_STAGING}
-              heroku run rails assets:precompile --app ${HEROKU_APP_NAME_STAGING}
-              heroku container:release web --app ${HEROKU_APP_NAME_STAGING}
-#            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_STAGING.git main
+            heroku container:push web --app ${HEROKU_APP_NAME_STAGING}
+            heroku run rails assets:precompile --app ${HEROKU_APP_NAME_STAGING}
+            heroku container:release web --app ${HEROKU_APP_NAME_STAGING}
+      #            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_STAGING.git main
       - run:
           name: export rails master key
           command: |
@@ -143,12 +143,13 @@ jobs:
           name: heroku maintenance on
           command: heroku maintenance:on --app ${HEROKU_APP_NAME_PROD}
       - run:
-          name: Deploy to Heroku_Production
+          name: Build and push Docker image to Heroku
           command: |
-              heroku container:push web --app ${HEROKU_APP_NAME_PROD}
-              heroku run rails assets:precompile --app ${HEROKU_APP_NAME_PROD}
-              heroku container:release web --app ${HEROKU_APP_NAME_PROD}
-#            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_PROD.git main
+            sudo curl https://cli-assets.heroku.com/install.sh | sh
+            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
+            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME_PROD} web
+            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:release -a ${HEROKU_APP_NAME_PROD} web
+      #            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_PROD.git main
       - run:
           name: export rails master key
           command: |
