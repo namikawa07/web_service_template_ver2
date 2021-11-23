@@ -85,7 +85,42 @@ jobs:
       - store_artifacts:
           path: /home/circleci/repo/tmp/screenshots
 
-  deploy:
+  deploy-staging:
+    docker:
+      - image: circleci/ruby:2.6.5-stretch-node
+        environment:
+          RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: "Install Heroku CLI, if necessary"
+          command: |
+            if [[ $(command -v heroku) == "" ]]; then
+              curl https://cli-assets.heroku.com/install.sh | sh
+            else
+              echo "Heroku is already installed. No operation was performed."
+            fi
+      - run:
+          name: heroku maintenance on
+          command: heroku maintenance:on --app ${HEROKU_APP_NAME}
+      - run:
+          name: Deploy to Heroku_Production
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git main
+      - run:
+          name: export rails master key
+          command: |
+            export RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - run:
+          name: db migration
+          command: |
+            heroku run rails db:migrate --app ${HEROKU_APP_NAME}
+      - run:
+          name: heroku maintenance off
+          command: heroku maintenance:off --app ${HEROKU_APP_NAME}
+
+  deploy-prod:
     docker:
       - image: circleci/ruby:2.6.5-stretch-node
         environment:
@@ -128,11 +163,19 @@ workflows:
           filters:
             branches:
               ignore: develop
-      - deploy:
-          # masterブランチへのpushでのみ反応
-          requires:
-            - test_backend
-          filters:
-            branches:
-              only:
-                - main
+#      - deploy-staging:
+#          # masterブランチへのpushでのみ反応
+#          requires:
+#            - test_backend
+#          filters:
+#            branches:
+#              only:
+#                - staging
+#      - deploy-prod:
+#          # masterブランチへのpushでのみ反応
+#          requires:
+#            - test_backend
+#          filters:
+#            branches:
+#              only:
+#                - prod
