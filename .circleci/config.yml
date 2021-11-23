@@ -112,7 +112,6 @@ jobs:
             sudo curl https://cli-assets.heroku.com/install.sh | sh
             HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
             HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME_PROD} web
-      #            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_STAGING.git main
       - run:
           name: export rails master key
           command: |
@@ -121,7 +120,7 @@ jobs:
           name: db migration
           command: |
             heroku run rails db:migrate --app ${HEROKU_APP_NAME_STAGING}
-       - run:
+      - run:
           name: webpacker compile
           command: |
             heroku run rails assets:precompile --app ${HEROKU_APP_NAME_STAGING}
@@ -160,7 +159,6 @@ jobs:
             sudo curl https://cli-assets.heroku.com/install.sh | sh
             HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
             HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME_PROD} web
-      #            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_PROD.git main
       - run:
           name: export rails master key
           command: |
