@@ -181,6 +181,10 @@ jobs:
           command: |
             yarn install
       - run:
+          name: Docker build
+          command: |
+            docker-compose build
+      - run:
           name: webpacker install
           command: |
             docker-compose run --rm web bundle exec rails webpacker:install RAILS_ENV=production
