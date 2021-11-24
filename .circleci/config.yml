@@ -1,14 +1,15 @@
 version: 2.1
 
+
 jobs:
   test_backend:
     docker:
-      # dockerイメージで使っているrubyバージョンと一致させる
+    # dockerイメージで使っているrubyバージョンと一致させる
       - image: circleci/ruby:2.6.5-stretch-node
         environment:
           RAILS_ENV: test
           DB_HOST: 127.0.0.1
-          DB_PASSWORD: ""
+          DB_PASSWORD: ''
       - image: circleci/postgres:9.6.2-alpine
         environment:
           POSTGRES_USER: root
@@ -53,14 +54,6 @@ jobs:
           name: create directory to store test results
           command: mkdir /tmp/test-results
           working_directory: ~/repo
-      # yarn install
-      - run:
-          name: yarn Install
-          command: yarn install
-
-      - run:
-          name: webpacker compile for test
-          command: RAILS_ENV=test bundle exec rails webpacker:compile
 
       # run rubocop
       - run: bundle exec rubocop
@@ -85,147 +78,53 @@ jobs:
       - store_artifacts:
           path: /home/circleci/repo/tmp/screenshots
 
-#  deploy-staging:
-#    docker:
-#      - image: circleci/ruby:2.6.5-stretch-node
-#        environment:
-#          RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
-#    working_directory: ~/repo
-#    steps:
-#      - checkout
-#      - setup_remote_docker:
-#          version: 19.03.13
-#      - run:
-#          name: "Install Heroku CLI, if necessary"
-#          command: |
-#            if [[ $(command -v heroku) == "" ]]; then
-#              curl https://cli-assets.heroku.com/install.sh | sh
-#            else
-#              echo "Heroku is already installed. No operation was performed."
-#            fi
-#      - run:
-#          name: heroku maintenance on
-#          command: heroku maintenance:on --app ${HEROKU_APP_NAME_STAGING}
-#      - run:
-#          name: Deploy to Heroku_Production
-#          command: |
-#            sudo curl https://cli-assets.heroku.com/install.sh | sh
-#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
-#           HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME_STAGING} web
-#      - run:
-#          name: export rails master key
-#          command: |
-#            export RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
-#      - run:
-#          name: db migration
-#          command: |
-#           heroku run rails db:migrate --app ${HEROKU_APP_NAME_STAGING}
-#      # gem install
-#      - run:
-#         command: |
-#            gem install bundler
-#            bundle config set path 'vendor/bundle'
-#            bundle install --jobs=4 --retry=3
-#          working_directory: ~/repo
-#      - run:
-#          name: webpacker compile
-#          command: |
-#            yarn install
-#            RAILS_ENV=production bundle exec rails webpacker:compile
-#            heroku run rails assets:precompile --app ${HEROKU_APP_NAME_STAGING}
-#      - run:
-#          name: release Docker image to Heroku
-#          command: |
-#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:release -a ${HEROKU_APP_NAME_STAGING} web
-#      - run:
-#          name: heroku maintenance off
-#          command: heroku maintenance:off --app ${HEROKU_APP_NAME_STAGING}
 
-#  deploy-prod:
-#    docker:
-#      - image: circleci/ruby:2.6.5-stretch-node
-#        environment:
-#          RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
-#    working_directory: ~/repo
-#    steps:
-#      - checkout
-#      - setup_remote_docker:
-#          version: 19.03.13
-#      - run:
-#          name: "Install Heroku CLI, if necessary"
-#          command: |
-#            if [[ $(command -v heroku) == "" ]]; then
-#              curl https://cli-assets.heroku.com/install.sh | sh
-#            else
-#              echo "Heroku is already installed. No operation was performed."
-#            fi
-#      - run:
-#          name: heroku maintenance on
-#          command: heroku maintenance:on --app ${HEROKU_APP_NAME_PROD}
-#      - run:
-#          name: Build Docker image to Heroku
-#          command: |
-#            sudo curl https://cli-assets.heroku.com/install.sh | sh
-#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
-#      - run:
-#          name: export rails master key
-#          command: |
-#            export RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
-#      - run:
-#          name: db migration
-#          command: |
-#            heroku run rails db:migrate --app ${HEROKU_APP_NAME_PROD}
-#      - run: bundle install --path vendor/bundle
-#      - run:
-#          name: yarn install
-#          command: |
-#            yarn install
-#      - run:
-#          name: Docker build
-#          command: |
-#            docker-compose build
-#      - run:
-#          name: webpacker compile
-#          command: |
-#            docker-compose run --rm web rails assets:precompile RAILS_ENV=production
-#            bundle exec bin/webpack
-#      - run:
-#          name: heroku webpacker compile
-#          command: |
-#            heroku run rails assets:precompile --app ${HEROKU_APP_NAME_PROD}
-#      - run:
-#          name: push Docker image to Heroku
-#          command: |
-#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME_PROD} web
-#      - run:
-#          name: release Docker image to Heroku
-#          command: |
-#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:release -a ${HEROKU_APP_NAME_PROD} web
-#      - run:
-#          name: heroku maintenance off
-#          command: heroku maintenance:off --app ${HEROKU_APP_NAME_PROD}
+  deploy:
+    docker:
+      - image: circleci/ruby:2.6.5-stretch-node
+        environment:
+          RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: 'Install Heroku CLI, if necessary'
+          command: |
+            if [[ $(command -v heroku) == "" ]]; then
+              curl https://cli-assets.heroku.com/install.sh | sh
+            else
+              echo "Heroku is already installed. No operation was performed."
+            fi
+      - run:
+          name: heroku maintenance on
+          command: heroku maintenance:on --app ${HEROKU_APP_NAME}
+      - run:
+          name: Deploy to Heroku_Production
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+      - run:
+          name: export rails master key
+          command: |
+            export RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - run:
+          name: db migration
+          command: |
+            heroku run rails db:migrate --app ${HEROKU_APP_NAME}
+      - run:
+          name: heroku maintenance off
+          command: heroku maintenance:off --app ${HEROKU_APP_NAME}
 
 workflows:
   version: 2
   test:
     jobs:
       - test_backend:
+
+  deploy:
+    jobs:
+      - deploy:
+          # masterブランチへのpushでのみ反応
           filters:
-            branches:
-              ignore: develop
-#      - deploy-staging:
-#          # stagingブランチへのpushでのみ反応
-#          requires:
-#            - test_backend
-#          filters:
-#            branches:
-#              only:
-#                - staging
-#      - deploy-prod:
-#          # prodブランチへのpushでのみ反応
-#          requires:
-#            - test_backend
-#          filters:
-#            branches:
-#              only:
-#                - prod
+              branches:
+                  only:
+                  - main

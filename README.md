@@ -109,6 +109,11 @@ $ heroku addons:create heroku-postgresql:hobby-dev --app アプリ名
 
 ### 3.staging環境とprod環境をherokuであげてみる
 
+```
+$ heroku login
+& heroku container:login
+```
+
 Dockerを落とす
 ```
 $ docker-compose down
