@@ -184,12 +184,16 @@ jobs:
             bundle install --jobs=4 --retry=3
           working_directory: ~/repo
       - run:
-          name: webpacker compile
+          name: yarn install
           command: |
             yarn install
-            rm -rf bin/webpack*
-            rails webpacker:install
-            bundle exec rails webpacker:compile RAILS_ENV=production 
+      - run:
+          name: webpacker compile ENV=production
+          command: |
+            bundle exec rails webpacker:compile RAILS_ENV=production
+      - run:
+          name: heroku webpacker compile
+          command: |
             heroku run rails assets:precompile --app ${HEROKU_APP_NAME_PROD}
       - run:
           name: release Docker image to Heroku
