@@ -36,6 +36,105 @@ $ ./bin/webpack-dev-server
 を実行
 
 ## 開発環境
+
+### 1.新しいgitリポジトリを作成する
+web_service_templateの`Use this template`を押す
+￼
+リポジトリ名にサービス名を記入しcreateする
+
+作成したらcodeからHTTPSを選びコードをもってきたい場所にcloneする
+
+
+￼
+```
+git clone HTTPSにコード
+```
+
+### 2.herokuにあげるstaging環境とproduction環境を作成する
+
+作業するルートディレクトリで
+
+```
+$ heroku login
+```
+でherokuにログインする
+
+```
+$ heroku container:login
+```
+Heroku containerにログインする
+
+・staging環境を作る
+
+```
+$ heroku create サービス名 --remote staging
+```
+
+・production環境を作る
+
+```
+$ heroku create サービス名 --remote prod
+```
+サービス名はURLとかでも表示されるのでgithubで使ってる名前が良い
+※アンダーバー使えないので注意！
+
+もし名前を間違った時
+```
+$ heroku apps:destroy --app アプリ名
+```
+これでheroku上のアプリは削除されるので初めから作る
+
+作成できたら
+```
+$ git config --list
+```
+で確認
+staging環境とprod環境のherokuのgitができている
+
+・webpackをコンパイルする
+
+```
+$ docker rm $(docker ps -aq) --force
+$ docker-compose run --rm web rails assets:precompile RAILS_ENV=production
+```
+前に使っていたTemplateのdockerが残っている可能性があるので一度全てのdockerをクリーンにしてからdockerを新しく立ててwebpackerをコンパイルしている
+
+・DBを設定する
+
+```
+$ heroku addons:create heroku-postgresql:hobby-dev --app アプリ名
+```
+これもstagingとprodの2つやる
+
+
+### 3.staging環境とprod環境をherokuであげてみる
+
+Dockerを落とす
+```
+$ docker-compose down
+```
+
+dockerコンテナをherokuにpushする
+```
+$ heroku container:push web --app アプリ名
+```
+
+データベースのmigrate (createは必要なし)
+```
+$ heroku run rails db:migrate --app アプリ名
+```
+webpackを反映させる
+```
+$ heroku run rails assets:precompile --app アプリ名
+```
+コンテナを起動する
+```
+$ heroku container:release web --app アプリ名
+```
+アプリを開く
+```
+$ heroku open --app アプリ名
+```
 #### server
 ruby 2.6.5p114
 Rails 6.1.4.1
