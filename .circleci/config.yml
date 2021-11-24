@@ -185,10 +185,6 @@ jobs:
           command: |
             docker-compose build
       - run:
-          name: webpacker install
-          command: |
-#            docker-compose run --rm web bundle exec rails webpacker:install RAILS_ENV=production
-      - run:
           name: webpacker compile
           command: |
             docker-compose run --rm web rails assets:precompile RAILS_ENV=production
