@@ -87,6 +87,69 @@ jobs:
       - store_artifacts:
           path: /home/circleci/repo/tmp/screenshots
 
+  deploy:
+    docker:
+      - image: circleci/ruby:2.6.5-stretch-node
+        environment:
+          RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: "Install Heroku CLI, if necessary"
+          command: |
+            if [[ $(command -v heroku) == "" ]]; then
+              curl https://cli-assets.heroku.com/install.sh | sh
+            else
+              echo "Heroku is already installed. No operation was performed."
+            fi
+#      - run:
+#          name: heroku maintenance on
+#          command: heroku maintenance:on --app ${HEROKU_APP_NAME}
+      - run:
+          name: Heroku container login
+          command: |
+            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
+      - run:
+          name: export rails master key
+          command: |
+            export RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - run:
+          name: db migration
+          command: |
+            heroku run rails db:migrate --app ${HEROKU_APP_NAME}
+      - run: bundle install --path vendor/bundle
+      - run:
+          name: yarn install
+          command: |
+            yarn install
+#      - run:
+#          name: Docker build
+#          command: |
+#            docker-compose build
+#      - run:
+#          name: webpacker compile
+#          command: |
+#            docker-compose run --rm web rails assets:precompile RAILS_ENV=production
+#            bundle exec bin/webpack
+      - run:
+          name: heroku webpacker compile
+          command: |
+            heroku run rails assets:precompile
+      - run:
+          name: push Docker image to Heroku
+          command: |
+            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME} web
+      - run:
+          name: release Docker image to Heroku
+          command: |
+            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:release -a ${HEROKU_APP_NAME} web
+#      - run:
+#          name: heroku maintenance off
+#          command: heroku maintenance:off --app ${HEROKU_APP_NAME}
+
 
 workflows:
   test:
