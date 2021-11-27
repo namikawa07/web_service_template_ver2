@@ -1,5 +1,5 @@
-orbs:
-  heroku-container: pbrisbin/heroku-container@1.0.0
+#orbs:
+#  heroku-container: pbrisbin/heroku-container@1.0.0
 version: 2.1
 
 jobs:
@@ -105,13 +105,17 @@ jobs:
             else
               echo "Heroku is already installed. No operation was performed."
             fi
-#      - run:
-#          name: heroku maintenance on
-#          command: heroku maintenance:on --app ${HEROKU_APP_NAME}
       - run:
-          name: Heroku container login
+          name: heroku maintenance on
+          command: heroku maintenance:on --app ${HEROKU_APP_NAME}
+      - run:
+          name: Deploy to Heroku_Production
           command: |
-            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git main
+#      - run:
+#          name: Heroku container login
+#          command: |
+#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
       - run:
           name: export rails master key
           command: |
@@ -121,10 +125,10 @@ jobs:
           command: |
             heroku run rails db:migrate --app ${HEROKU_APP_NAME}
       - run: bundle install --path vendor/bundle
-      - run:
-          name: yarn install
-          command: |
-            yarn install
+#      - run:
+#          name: yarn install
+#          command: |
+#            yarn install
 #      - run:
 #          name: Docker build
 #          command: |
@@ -134,21 +138,21 @@ jobs:
 #          command: |
 #            docker-compose run --rm web rails assets:precompile RAILS_ENV=production
 #            bundle exec bin/webpack
-      - run:
-          name: heroku webpacker compile
-          command: |
-            heroku run rails assets:precompile -a ${HEROKU_APP_NAME}
-      - run:
-          name: push Docker image to Heroku
-          command: |
-            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME} web
-      - run:
-          name: release Docker image to Heroku
-          command: |
-            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:release -a ${HEROKU_APP_NAME} web
 #      - run:
-#          name: heroku maintenance off
-#          command: heroku maintenance:off --app ${HEROKU_APP_NAME}
+#          name: heroku webpacker compile
+#          command: |
+#            heroku run rails assets:precompile -a ${HEROKU_APP_NAME}
+#      - run:
+#          name: push Docker image to Heroku
+#          command: |
+#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:push -a ${HEROKU_APP_NAME} web
+#      - run:
+#          name: release Docker image to Heroku
+#          command: |
+#            HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:release -a ${HEROKU_APP_NAME} web
+      - run:
+          name: heroku maintenance off
+          command: heroku maintenance:off --app ${HEROKU_APP_NAME}
 
 
 workflows:
@@ -158,20 +162,20 @@ workflows:
           filters:
             branches:
               ignore: develop
-  build_and_release:
-    jobs:
-      - heroku-container/push-and-release:
-          app-name: ${HEROKU_APP_NAME}
-          before-build:
-            - run:
-                command: |
-                  yarn install
-                  yarn add @rails/webpacker
-                  bundle update webpacker
-          filters:
-            branches:
-              only:
-                - main
+#  build_and_release:
+#    jobs:
+#      - heroku-container/push-and-release:
+#          app-name: ${HEROKU_APP_NAME}
+#          before-build:
+#            - run:
+#                command: |
+#                  yarn install
+#                  yarn add @rails/webpacker
+#                  bundle update webpacker
+#          filters:
+#            branches:
+#              only:
+#                - main
   deploy:
     jobs:
       - deploy:
