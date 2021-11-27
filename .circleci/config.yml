@@ -102,10 +102,9 @@ workflows:
           before-build:
             - run:
                 command: |
-                  rm -rf bin/webpack*
-                  rails webpacker:install
-                  rails webpacker:compile RAILS_ENV=production
-                  heroku run rails assets:precompile
+                  yarn install
+                  yarn add @rails/webpacker
+                  bundle update webpacker
           filters:
             branches:
               only:
