@@ -99,6 +99,12 @@ workflows:
     jobs:
       - heroku-container/push-and-release:
           app-name: ${HEROKU_APP_NAME}
+          before-push: heroku
+            - run: |
+                rm -rf bin/webpack*
+                rails webpacker:install
+                rails webpacker:compile RAILS_ENV=production
+                heroku run rails assets:precompile
           filters:
             branches:
               only:
