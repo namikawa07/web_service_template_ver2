@@ -137,7 +137,7 @@ jobs:
       - run:
           name: heroku webpacker compile
           command: |
-            heroku run rails assets:precompile
+            heroku run rails assets:precompile -a ${HEROKU_APP_NAME}
       - run:
           name: push Docker image to Heroku
           command: |
