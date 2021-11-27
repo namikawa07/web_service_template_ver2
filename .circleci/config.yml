@@ -85,7 +85,7 @@ jobs:
       - store_artifacts:
           path: /home/circleci/repo/tmp/screenshots
 
-version: 2.1
+#version: 2.1
 orbs:
   heroku-container: pbrisbin/heroku-container@1.0.0
 workflows:
