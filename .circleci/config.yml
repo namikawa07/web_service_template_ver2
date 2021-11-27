@@ -179,15 +179,15 @@ jobs:
           name: yarn install
           command: |
             yarn install
-      - run:
-          name: Docker build
-          command: |
-            docker-compose build
-      - run:
-          name: webpacker compile
-          command: |
-            docker-compose run --rm web rails assets:precompile RAILS_ENV=production
-            bundle exec bin/webpack
+#      - run:
+#          name: Docker build
+#          command: |
+#            docker-compose build
+#      - run:
+#          name: webpacker compile
+#          command: |
+#            docker-compose run --rm web rails assets:precompile RAILS_ENV=production
+#            bundle exec bin/webpack
       - run:
           name: heroku webpacker compile
           command: |
