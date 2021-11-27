@@ -172,3 +172,10 @@ workflows:
             branches:
               only:
                 - main
+  deploy:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only:
+                - main
